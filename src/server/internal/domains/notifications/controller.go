@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"service/internal/domains/notifications/models"
-	"service/internal/infrastructure/config"
 	middleware "service/internal/infrastructure/middlewares"
 	"strconv"
 )
@@ -18,7 +17,6 @@ func NewController(svc *Service) *Controller {
 }
 
 func (c *Controller) Endpoints(r *gin.Engine) {
-	cfg := config.GetTelegram()
 
 	authorized := r.Group("/", middleware.UnifiedAuthenticationMiddleware())
 	authorized.GET("/notifications", c.ListNotifications)
