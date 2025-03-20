@@ -72,9 +72,14 @@ jobs:
       - name: Deploy to server
         run: |
           scp -v -r -o StrictHostKeyChecking=no \
-            image.tar \
+            server.tar \
+            bot.tar \
             .env \
             docker-compose.yml \
+            nginx.shield.conf \
+            prometheus.yml \
+            loki-config.yaml \
+            promtail-config.yaml \
             ${{ env.SERVER_USER }}@${{ env.SERVER_DOMAIN }}:$DEPLOY_PATH/
 
       # Загрузка Docker-образа и запуск контейнеров
