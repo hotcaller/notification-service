@@ -20,8 +20,7 @@ func NewController(svc *Service) *Controller {
 func (c *Controller) Endpoints(r *gin.Engine) {
 	cfg := config.GetTelegram()
 
-	// Применяем объединённое middleware
-	authorized := r.Group("/", middleware.UnifiedAuthenticationMiddleware(cfg))
+	authorized := r.Group("/", middleware.UnifiedAuthenticationMiddleware())
 	authorized.GET("/notifications", c.ListNotifications)
 	authorized.GET("/notifications/:id", c.GetNotificationByID)
 	authorized.POST("/notifications", c.SendNotification)

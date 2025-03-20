@@ -4,6 +4,8 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
+	"github.com/golang-jwt/jwt"
 	"net/url"
 	"service/internal/infrastructure/config"
 	"sort"
@@ -14,8 +16,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func UnifiedAuthenticationMiddleware(cfg *config.TelegramConfig) gin.HandlerFunc {
+func UnifiedAuthenticationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		cfg := config.GetTelegram()
+		secret := config.GetJWT().Secret
+		if isValidJWT(c, secret) {
+			c.Next()
+			return
+		}
+
 		// Попытка аутентификации через Telegram Login Widget
 		if isValidTelegramUser(c, cfg.BotToken) {
 			c.Next()
@@ -67,6 +76,41 @@ func isValidTelegramUser(c *gin.Context, botToken string) bool {
 	c.Set("telegram_user_id", userID)
 
 	return true
+}
+
+func isValidJWT(c *gin.Context, jwtSecret string) bool {
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		return false
+	}
+
+	parts := strings.SplitN(authHeader, " ", 2)
+	if !(len(parts) == 2 && parts[0] == "Bearer") {
+		return false
+	}
+
+	tokenString := parts[1]
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("неверный метод подписи токена")
+		}
+		return []byte(jwtSecret), nil
+	})
+
+	if err != nil || !token.Valid {
+		return false
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		userID, ok := claims["sub"].(string)
+		if !ok {
+			return false
+		}
+		c.Set("telegram_user_id", userID)
+		return true
+	} else {
+		return false
+	}
 }
 
 func validateTelegramAuthData(data url.Values, token string) bool {

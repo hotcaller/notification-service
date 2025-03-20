@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func generateJWTToken(userID int64) (string, error) {
+func GenerateJWTToken(userID int64) (string, error) {
 	claims := &jwt.StandardClaims{
 		ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
 		Subject:   fmt.Sprintf("%d", userID),

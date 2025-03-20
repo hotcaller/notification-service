@@ -2,6 +2,9 @@ package api
 
 import (
 	"net/http"
+	"net/url"
+	"service/internal/infrastructure/utils"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -27,7 +30,51 @@ func (cont *Controller) Endpoints(r *gin.Engine) {
 	})
 
 	r.GET("/login/callback", cont.TelegramLoginCallback)
+
+	r.POST("/login/callback", cont.TelegramLoginCallbackPost)
+
 	r.GET("/qr", cont.GenerateQRCode)
+}
+
+func (cont *Controller) TelegramLoginCallbackPost(c *gin.Context) {
+	var userData map[string]string
+	if err := c.BindJSON(&userData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Некорректные данные"})
+		return
+	}
+
+	data := url.Values{}
+	for key, value := range userData {
+		data.Set(key, value)
+	}
+
+	isValid := cont.svc.ValidateTelegramData(data)
+	if !isValid {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Неверные данные Телеграма"})
+		return
+	}
+
+	userIDStr := data.Get("id")
+	userID, err := strconv.ParseInt(userIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный идентификатор пользователя"})
+		return
+	}
+
+	// Генерируем JWT токен
+	token, err := utils.GenerateJWTToken(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка генерации JWT токена"})
+		return
+	}
+	//token, err := cont.svc.ProcessTelegramLogin(c.Request.Context(), data)
+	//if err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка обработки данных пользователя"})
+	//	return
+	//}
+
+	// Возвращаем JWT токен клиенту
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
 // /login/callback

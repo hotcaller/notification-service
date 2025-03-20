@@ -49,8 +49,8 @@ jobs:
       # Сохранение Docker-образа в tar-файл
       - name: Save Docker image
         run: |
-          docker save -o image.tar bot:latest
-          docker save -o image.tar server:latest
+          docker save -o bot.tar bot:latest
+          docker save -o server.tar server:latest
 
       # Настройка SSH ключа
       - name: Setup SSH key
@@ -87,7 +87,8 @@ jobs:
               exit 1
             fi
             cd $DEPLOY_PATH
-            docker load -i image.tar || { echo 'Failed to load Docker image'; exit 1; }
+            docker load -i bot.tar || { echo 'Failed to load bot image'; exit 1; }
+            docker load -i server.tar || { echo 'Failed to load server image'; exit 1; }
             docker compose --env-file=.env up -d || { echo 'Failed to start containers'; exit 1; }
             echo 'Deployed!'
           "
