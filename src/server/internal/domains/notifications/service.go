@@ -15,12 +15,12 @@ func NewService(repo *Repository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) ListNotifications(ctx context.Context) ([]models.Notification, error) {
-	return s.repo.GetAllNotifications(ctx)
+func (s *Service) ListNotifications(ctx context.Context, userID string) ([]models.Notification, error) {
+	return s.repo.GetNotificationsByUserID(ctx, userID)
 }
 
-func (s *Service) GetNotificationByID(ctx context.Context, id int) (*models.Notification, error) {
-	return s.repo.GetNotificationByID(ctx, id)
+func (s *Service) GetNotificationByID(ctx context.Context, id int, userID string) (*models.Notification, error) {
+	return s.repo.GetNotificationByIDAndUserID(ctx, id, userID)
 }
 
 func (s *Service) SendNotification(ctx context.Context, notification models.Notification) error {

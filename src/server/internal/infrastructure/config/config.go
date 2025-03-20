@@ -24,3 +24,12 @@ type MinioConfig struct {
 	SecretAccessKey string
 	UseSSL          bool
 }
+
+type TelegramConfig struct {
+	BotToken  string
+	BotSecret string
+}
+
+type JWTConfig struct {
+	Secret string
+}

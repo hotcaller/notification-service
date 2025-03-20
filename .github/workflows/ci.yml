@@ -3,10 +3,10 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - deploy
+      - main
   pull_request:
     branches:
-      - deploy
+      - main
 
 env:
   DEPLOY_PATH: /home/app

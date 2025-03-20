@@ -1,13 +1,12 @@
-// internal/domains/notifications/controller.go
-
 package notifications
 
 import (
-	"net/http"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"service/internal/domains/notifications/models"
+	"service/internal/infrastructure/config"
+	middleware "service/internal/infrastructure/middlewares"
+	"strconv"
 )
 
 type Controller struct {
@@ -19,13 +18,25 @@ func NewController(svc *Service) *Controller {
 }
 
 func (c *Controller) Endpoints(r *gin.Engine) {
-	r.GET("/notifications", c.ListNotifications)
-	r.GET("/notifications/:id", c.GetNotificationByID)
-	r.POST("/notifications", c.SendNotification)
+	cfg := config.GetTelegram()
+
+	// Применяем объединённое middleware
+	authorized := r.Group("/", middleware.UnifiedAuthenticationMiddleware(cfg))
+	authorized.GET("/notifications", c.ListNotifications)
+	authorized.GET("/notifications/:id", c.GetNotificationByID)
+	authorized.POST("/notifications", c.SendNotification)
 }
 
 func (c *Controller) ListNotifications(ctx *gin.Context) {
-	notifications, err := c.svc.ListNotifications(ctx.Request.Context())
+	// Получаем идентификатор аутентифицированного пользователя из контекста
+	userID := ctx.GetString("telegram_user_id")
+	if userID == "" {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Неавторизованный пользователь"})
+		return
+	}
+
+	// Вызываем сервисный метод с учетом userID
+	notifications, err := c.svc.ListNotifications(ctx.Request.Context(), userID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -34,6 +45,13 @@ func (c *Controller) ListNotifications(ctx *gin.Context) {
 }
 
 func (c *Controller) GetNotificationByID(ctx *gin.Context) {
+	// Получаем идентификатор аутентифицированного пользователя из контекста
+	userID := ctx.GetString("telegram_user_id")
+	if userID == "" {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Неавторизованный пользователь"})
+		return
+	}
+
 	idParam := ctx.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -41,7 +59,7 @@ func (c *Controller) GetNotificationByID(ctx *gin.Context) {
 		return
 	}
 
-	notification, err := c.svc.GetNotificationByID(ctx.Request.Context(), id)
+	notification, err := c.svc.GetNotificationByID(ctx.Request.Context(), id, userID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -55,14 +73,13 @@ func (c *Controller) GetNotificationByID(ctx *gin.Context) {
 
 func (c *Controller) SendNotification(ctx *gin.Context) {
 	var notification models.Notification
-	if err := ctx.ShouldBindJSON(&notification); err != nil {
+	if err := ctx.BindJSON(&notification); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	if err := c.svc.SendNotification(ctx.Request.Context(), notification); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "Уведомление отправлено"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "Уведомление успешно отправлено"})
 }

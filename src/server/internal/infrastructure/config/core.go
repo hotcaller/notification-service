@@ -93,3 +93,19 @@ func GetMinio() (*MinioConfig, error) {
 		UseSSL:          minioSsl,
 	}, nil
 }
+
+func GetTelegram() *TelegramConfig {
+	botToken := os.Getenv("TELEGRAM_TOKEN")
+	botSecret := os.Getenv("BOT_SECRET")
+	return &TelegramConfig{
+		BotToken:  botToken,
+		BotSecret: botSecret,
+	}
+}
+
+func GetJWT() *JWTConfig {
+	jwtSecret := os.Getenv("JWT_SECRET")
+	return &JWTConfig{
+		Secret: jwtSecret,
+	}
+}

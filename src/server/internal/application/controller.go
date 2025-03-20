@@ -7,30 +7,42 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"service/internal/domains/api"
-	"service/internal/domains/person"
+	"service/internal/domains/notifications"
 	"time"
+
+	"github.com/gin-contrib/cors"
 )
 
 type Controller struct {
-	person *person.Controller
-	api    *api.Controller
-	Router *gin.Engine
+	notification *notifications.Controller
+	api          *api.Controller
+	Router       *gin.Engine
 }
 
 func NewController(svc *Service, r *gin.Engine) *Controller {
 	return &Controller{
-		person: person.NewController(svc.Person),
-		api:    api.NewController(svc.Api),
-		Router: r,
+		notification: notifications.NewController(svc.Notification),
+		api:          api.NewController(svc.Api),
+		Router:       r,
 	}
 }
 
 func (c *Controller) InitRouter() {
 	c.api.Endpoints(c.Router)
-	c.person.Endpoints(c.Router)
+	c.notification.Endpoints(c.Router)
 }
 
 func (c *Controller) Run(addr string, ctx context.Context) {
+	config := cors.Config{
+		AllowAllOrigins:  true,
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type", "X-Telegram-Auth"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}
+	c.Router.Use(cors.New(config))
+
 	c.InitRouter()
 
 	server := &http.Server{

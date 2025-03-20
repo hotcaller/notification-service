@@ -31,17 +31,24 @@ func (r *Repository) GetAllNotifications(ctx context.Context) ([]models.Notifica
 	return notifications, nil
 }
 
-func (r *Repository) GetNotificationByID(ctx context.Context, id int) (*models.Notification, error) {
-	var notification models.Notification
-	query := `
-        SELECT id, message, target_id, org_token, created_at
-        FROM notifications
-        WHERE id = $1
-    `
-	if err := r.db.Get(ctx, notification, query, id); err != nil {
-		return nil, fmt.Errorf("не удалось получить уведомление: %w", err)
+func (r *Repository) GetNotificationsByUserID(ctx context.Context, userID string) ([]models.Notification, error) {
+	query := `SELECT id, message,target_id, org_token, created_at FROM notifications WHERE target_id = $1`
+	var notifications []models.Notification
+
+	if err := r.db.Select(ctx, &notifications, query, userID); err != nil {
+		return nil, err
 	}
-	return &notification, nil
+	return notifications, nil
+}
+
+func (r *Repository) GetNotificationByIDAndUserID(ctx context.Context, id int, userID string) (*models.Notification, error) {
+	query := `SELECT id, message,target_id, org_token, created_at FROM notifications WHERE id = $1 AND target_id = $2`
+	var n models.Notification
+
+	if err := r.db.Get(ctx, &n, query, id, userID); err != nil {
+		return nil, err
+	}
+	return &n, nil
 }
 
 func (r *Repository) SaveNotification(ctx context.Context, notification models.Notification) error {
