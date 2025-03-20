@@ -21,7 +21,7 @@ func (c *Controller) Endpoints(r *gin.Engine) {
 	authorized := r.Group("/", middleware.UnifiedAuthenticationMiddleware())
 	authorized.GET("/notifications", c.ListNotifications)
 	authorized.GET("/notifications/:id", c.GetNotificationByID)
-	authorized.POST("/notifications", c.SendNotification)
+	r.POST("/notifications", c.SendNotification)
 }
 
 func (c *Controller) ListNotifications(ctx *gin.Context) {
@@ -32,8 +32,13 @@ func (c *Controller) ListNotifications(ctx *gin.Context) {
 		return
 	}
 
+	userIDint, err := strconv.ParseInt(userID, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный идентификатор пользователя"})
+		return
+	}
 	// Вызываем сервисный метод с учетом userID
-	notifications, err := c.svc.ListNotifications(ctx.Request.Context(), userID)
+	notifications, err := c.svc.ListNotifications(ctx.Request.Context(), userIDint)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -50,13 +55,19 @@ func (c *Controller) GetNotificationByID(ctx *gin.Context) {
 	}
 
 	idParam := ctx.Param("id")
-	id, err := strconv.Atoi(idParam)
+
+	userIDint, err := strconv.ParseInt(userID, 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный ID уведомления"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный идентификатор пользователя"})
+		return
+	}
+	idInt, err := strconv.ParseInt(idParam, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный идентификатор пользователя"})
 		return
 	}
 
-	notification, err := c.svc.GetNotificationByID(ctx.Request.Context(), id, userID)
+	notification, err := c.svc.GetNotificationByID(ctx.Request.Context(), idInt, userIDint)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

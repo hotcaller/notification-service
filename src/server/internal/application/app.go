@@ -2,12 +2,14 @@ package application
 
 import (
 	"context"
+	"fmt"
 	"github.com/Arlandaren/pgxWrappy/pkg/postgres"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
 	"service/internal/infrastructure/config"
+	"service/internal/infrastructure/kafka"
 	"service/internal/infrastructure/storage/minio"
 	"service/internal/infrastructure/storage/redis"
 	"sync"
@@ -15,19 +17,37 @@ import (
 )
 
 type App struct {
-	Controller *Controller
-	wg         *sync.WaitGroup
-	cfg        *config.Config
+	Controller     *Controller
+	allAppConsumer *AppConsumer
+	KafkaBrokers   []string
+	wg             *sync.WaitGroup
+	cfg            *config.Config
 }
 
 func NewApp(db *postgres.Wrapper, rdb *redis.RDB, s3 *minio.Minio, r *gin.Engine, cfg *config.Config) *App {
+	kafkaBrokers := []string{os.Getenv("KAFKA_ADDRESS")}
+
+	kafkaCfg := kafka.NewConfig(kafkaBrokers)
+	fmt.Println(kafkaCfg)
+	kafkaProducer, err := kafka.NewProducer(kafkaCfg)
+	if err != nil {
+		log.Fatalf("failed to initialize Kafka producer: %v", err)
+	}
+
 	repo := NewRepository(db, rdb, s3)
-	svc := NewService(repo)
+	svc := NewService(repo, kafkaProducer)
 	controller := NewController(svc, r)
+
+	appConsumer := NewAppConsumer(svc, nil)
+	consumer := kafka.NewConsumer(appConsumer)
+	appConsumer.SetConsumer(consumer)
+
 	return &App{
-		Controller: controller,
-		wg:         &sync.WaitGroup{},
-		cfg:        cfg,
+		KafkaBrokers:   kafkaBrokers,
+		Controller:     controller,
+		wg:             &sync.WaitGroup{},
+		cfg:            cfg,
+		allAppConsumer: appConsumer,
 	}
 }
 
@@ -36,6 +56,19 @@ func (app *App) Run() {
 	defer cancel()
 
 	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		group := "server_group"
+		topics := []string{
+			"notification_created",
+		}
+
+		if err := app.allAppConsumer.Start(ctx, app.KafkaBrokers, group, topics); err != nil {
+			log.Fatalf("Failed to start Kafka consumer: %v", err)
+		}
+	}()
 
 	// Start the HTTP server
 	wg.Add(1)

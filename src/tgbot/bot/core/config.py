@@ -17,3 +17,4 @@ REDIS_URL = f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0"
 
 ADMINS = os.getenv("BOT_ADMINS").split(",")
 
+KAFKA_BROKER = os.getenv("KAFKA_ADDRESS")

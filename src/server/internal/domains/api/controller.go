@@ -33,7 +33,32 @@ func (cont *Controller) Endpoints(r *gin.Engine) {
 
 	r.POST("/login/callback", cont.TelegramLoginCallbackPost)
 
+	r.GET("/token", cont.Token)
+
 	r.GET("/qr", cont.GenerateQRCode)
+}
+
+func (cont *Controller) Token(c *gin.Context) {
+	userId := c.Query("user_id")
+
+	if userId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Ну укажи же ты какойнить юзер айди"})
+		return
+	}
+
+	userIDint, err := strconv.ParseInt(userId, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный идентификатор пользователя"})
+		return
+	}
+
+	token, err := utils.GenerateJWTToken(userIDint)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка генерации токена"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
 func (cont *Controller) TelegramLoginCallbackPost(c *gin.Context) {

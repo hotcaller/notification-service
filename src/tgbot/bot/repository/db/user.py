@@ -36,7 +36,6 @@ async def get_user_by_telegram_id(telegram_id: int):
                 "telegram_id": user.telegram_id,
                 "username": user.username,
                 "has_access": user.has_access,
-                "invite_code": user.invite_code,
             }
         return None
 

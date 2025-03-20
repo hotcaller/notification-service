@@ -33,3 +33,7 @@ type TelegramConfig struct {
 type JWTConfig struct {
 	Secret string
 }
+
+type KafkaConfig struct {
+	Brokers []string
+}

@@ -30,6 +30,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to initialize Minio: %v", err)
 	}
+
 	app := application.NewApp(db, rdb, s3, gin.Default(), cfg)
 
 	app.Run()
