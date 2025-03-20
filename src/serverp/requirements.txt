@@ -1,8 +1,0 @@
-fastapi
-uvicorn[standard]
-sqlalchemy[asyncio]
-pydantic
-asyncpg
-alembic
-python-dotenv
-python-telegram-bot
