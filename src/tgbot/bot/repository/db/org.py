@@ -1,4 +1,4 @@
-from sqlalchemy import select, update
+from sqlalchemy import select
 from bot.repository.db.db import async_session
 from bot.repository.db.models import Orgs
 

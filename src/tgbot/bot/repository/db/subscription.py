@@ -1,4 +1,4 @@
-from sqlalchemy import select, update, delete
+from sqlalchemy import select, delete
 from bot.repository.db.db import async_session
 from bot.repository.db.models import Subscriptions
 
