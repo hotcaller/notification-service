@@ -1,5 +1,6 @@
 services:
   server:
+    image: server:latest
     build: ./src/server
     ports:
       - "8000:8086"
@@ -12,6 +13,7 @@ services:
       - app
 
   bot:
+    image: bot:latest
     build: ./src/tgbot
     restart: always
     env_file:
