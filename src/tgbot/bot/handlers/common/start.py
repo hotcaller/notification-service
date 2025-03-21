@@ -24,7 +24,6 @@ async def handle_start_with_invite_code(
     patient_id = params
     if len(params) == 2:
         patient_id, token = params
-        
 
     if not await user_exists_by_telegram_id(message.from_user.id):
         await create_user(message.from_user.id, message.from_user.username)
