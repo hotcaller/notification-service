@@ -1,9 +1,7 @@
 from aiogram.types import CallbackQuery
 from aiogram.types import Message
-from aiogram import Router, types
+from aiogram import Router
 from aiogram import F
-from ...repository.db.subscription import get_subscriptions_by_user_id
-import aiohttp
 from bot.repository.db.subscriptions import create_subscription, subscription_exists
 from bot.repository.db.users import user_exists_by_telegram_id, create_user
 
