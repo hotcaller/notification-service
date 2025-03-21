@@ -33,12 +33,13 @@ async def handle_start_with_invite_code(
     await create_subscription(message.from_user.id, token, patient_id)
     await message.answer("✅ Вы успешно подписались на уведомления.")
 
+
 @r.message(CommandStart())
 async def start_handler(
     message: Message, command: CommandObject, dialog_manager: DialogManager
 ) -> None:
     user_id = int(message.from_user.id)
-    invite_code = command.args  
+    invite_code = command.args
 
     if not await user_exists_by_telegram_id(user_id):
         await create_user(user_id, message.from_user.username)
