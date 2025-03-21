@@ -17,19 +17,40 @@ func NewController(svc *Service) *Controller {
 }
 
 func (c *Controller) Endpoints(r *gin.Engine) {
-    // Public endpoints
     r.POST("/feedback-send", c.SendFeedback)
+    r.GET("/admin-feedback", c.ListAllFeedback) 
     
-    // Admin endpoints with authorization
     authorized := r.Group("/", middleware.UnifiedAuthenticationMiddleware())
-    authorized.GET("/feedback", c.ListFeedback)
+    authorized.GET("/feedback", c.ListUserFeedback)
     authorized.POST("/feedback-answer/:id", c.AnswerFeedback)
 }
 
-func (c *Controller) ListFeedback(ctx *gin.Context) {
-    // Optional: Check if user has admin rights here
+// ListUserFeedback returns only feedbac	k submitted by the authenticated user
+func (c *Controller) ListUserFeedback(ctx *gin.Context) {
+    userID := ctx.GetString("telegram_user_id")
+    if userID == "" {
+        ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+        return
+    }
     
-    feedbacks, err := c.svc.ListFeedback(ctx.Request.Context())
+    userIDint, err := strconv.ParseInt(userID, 10, 64)
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+        return
+    }
+    
+    feedbacks, err := c.svc.ListUserFeedback(ctx.Request.Context(), userIDint)
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+    ctx.JSON(http.StatusOK, gin.H{"feedback": feedbacks})
+}
+
+// ListAllFeedback returns all feedback (for admin use)
+func (c *Controller) ListAllFeedback(ctx *gin.Context) {
+    // No authorization check - this is an admin endpoint
+    feedbacks, err := c.svc.ListAllFeedback(ctx.Request.Context())
     if err != nil {
         ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return

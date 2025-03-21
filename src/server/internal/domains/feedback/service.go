@@ -1,3 +1,4 @@
+// Service
 package feedback
 
 import (
@@ -19,8 +20,12 @@ func NewService(repo *Repository) *Service {
     return &Service{repo: repo}
 }
 
-func (s *Service) ListFeedback(ctx context.Context) ([]models.Feedback, error) {
+func (s *Service) ListAllFeedback(ctx context.Context) ([]models.Feedback, error) {
     return s.repo.GetAllFeedback(ctx)
+}
+
+func (s *Service) ListUserFeedback(ctx context.Context, userID int64) ([]models.Feedback, error) {
+    return s.repo.GetUserFeedback(ctx, userID)
 }
 
 func (s *Service) SendFeedback(ctx context.Context, feedback models.Feedback) error {
