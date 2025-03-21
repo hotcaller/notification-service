@@ -24,7 +24,7 @@ async def handle_start_with_invite_code(
     if len(params) == 2:
         id = params[0]
         token = params[1]
-    
+
     id = params
     token = 123
 
