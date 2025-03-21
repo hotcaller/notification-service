@@ -1,3 +1,4 @@
+// Repository
 package feedback
 
 import (
@@ -28,6 +29,20 @@ func (r *Repository) GetAllFeedback(ctx context.Context) ([]models.Feedback, err
     `
     if err := r.db.Select(ctx, &feedbacks, query); err != nil {
         return nil, fmt.Errorf("failed to retrieve feedback: %w", err)
+    }
+    return feedbacks, nil
+}
+
+func (r *Repository) GetUserFeedback(ctx context.Context, userID int64) ([]models.Feedback, error) {
+    var feedbacks []models.Feedback
+    query := `
+        SELECT id, header, content, answer, user_id, created_at, answered_at
+        FROM feedback
+        WHERE user_id = $1
+        ORDER BY created_at DESC
+    `
+    if err := r.db.Select(ctx, &feedbacks, query, userID); err != nil {
+        return nil, fmt.Errorf("failed to retrieve user feedback: %w", err)
     }
     return feedbacks, nil
 }
