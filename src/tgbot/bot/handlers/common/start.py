@@ -22,6 +22,7 @@ async def handle_start_with_invite_code(
     params = invite_code.split("|")
 
     if len(params) != 2:
+        await message.answer(params)
         await message.answer("❌ Неверный формат кода приглашения.")
         return
 
