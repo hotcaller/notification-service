@@ -22,7 +22,7 @@ async def handle_start_with_invite_code(
     params = invite_code
 
     if len(params) != 2:
-        await message.answer(f"❌ Неверный формат кода приглашения. {params, dialog_manager, message}")
+        await message.answer(f"❌ Неверный формат кода приглашения. {params}")
         return
 
     patient_id, token = params
