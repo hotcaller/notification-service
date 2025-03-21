@@ -36,7 +36,7 @@ async def create_subscription(user_id: int, token: str, patient_id: int):
             )
         )
         existing_subscription = result.scalar_one_or_none()
-        
+        print(existing_subscription)
         if existing_subscription:
             # Update existing subscription
             existing_subscription.telegram_id = user_id

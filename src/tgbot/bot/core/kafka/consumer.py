@@ -64,7 +64,7 @@ async def consume(bot: Bot):
                     if sub:
                         print(f"Sending targeted notification to user {sub['telegram_id']}")
                         await bot.send_message(
-                            chat_id=sub["telegram_id"], text=notification["message"]
+                            chat_id=sub["telegram_id"], text=formatted_message, parse_mode="Markdown"
                         )
                     else:
                         print(f"No subscription found for patient_id={notification['target_id']}")
