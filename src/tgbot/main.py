@@ -13,7 +13,6 @@ from bot.core.config import TELEGRAM_TOKEN, REDIS_URL
 from bot.repository.redis.redis import init_redis, close_redis
 from bot.repository.db.db import init_db
 from bot.core.kafka.consumer import consume
-from bot.handlers.callbacks.callback import router as callback_router
 from bot.handlers.callbacks.callback import start_router
 
 async def main() -> None:
@@ -31,7 +30,6 @@ async def main() -> None:
     asyncio.create_task(consume(bot))
 
     dp.include_routers(handlers_router, *get_dialogs())
-    dp.include_router(callback_router)
     dp.include_router(start_router)
     setup_dialogs(dp)
     await dp.start_polling(bot)
