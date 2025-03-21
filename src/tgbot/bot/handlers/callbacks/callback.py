@@ -21,7 +21,7 @@ import aiohttp
 
 QR_CODE_URL = "http://103.88.241.21/qr"  
 
-@r.callback_query(lambda c: c.data == "get_qr")
+@r.callback_query(F.data == "get_qr")
 async def get_qr(callback: types.CallbackQuery):
     user_id = callback.from_user.id
 

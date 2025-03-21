@@ -23,10 +23,11 @@ async def main() -> None:
 
     bot = Bot(token=TELEGRAM_TOKEN, default=defaults)
     dp = Dispatcher(storage=storage)
-    dp.include_router(r)
+   
     asyncio.create_task(consume(bot))
 
-    dp.include_routers(router, *get_dialogs())
+    dp.include_routers(router, *get_dialogs()) 
+    dp.include_router(r)
     setup_dialogs(dp)
 
 
