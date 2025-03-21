@@ -18,11 +18,11 @@ func NewController(svc *Service) *Controller {
 
 func (c *Controller) Endpoints(r *gin.Engine) {
     r.POST("/feedback-send", c.SendFeedback)
+    r.POST("/feedback-answer/:id", c.AnswerFeedback)
     r.GET("/admin-feedback", c.ListAllFeedback) 
     
     authorized := r.Group("/", middleware.UnifiedAuthenticationMiddleware())
     authorized.GET("/feedback", c.ListUserFeedback)
-    authorized.POST("/feedback-answer/:id", c.AnswerFeedback)
 }
 
 // ListUserFeedback returns only feedbac	k submitted by the authenticated user
