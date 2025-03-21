@@ -4,6 +4,6 @@ CREATE TABLE IF NOT EXISTS feedback (
     content TEXT NOT NULL,
     answer TEXT,
     user_id BIGINT,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    answered_at TIMESTAMP
+    created_at TEXT NOT NULL DEFAULT to_char(NOW(), 'YYYY-MM-DD"T"HH24:MI:SS"Z"'),
+    answered_at TEXT
 );
