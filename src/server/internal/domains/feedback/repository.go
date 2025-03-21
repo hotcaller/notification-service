@@ -33,12 +33,14 @@ func (r *Repository) GetAllFeedback(ctx context.Context) ([]models.Feedback, err
 }
 
 func (r *Repository) CreateFeedback(ctx context.Context, feedback *models.Feedback) error {
+    // Format current time as ISO string
+    feedback.CreatedAt = time.Now().Format(time.RFC3339)
+    
     query := `
         INSERT INTO feedback (header, content, user_id, created_at)
         VALUES ($1, $2, $3, $4)
         RETURNING id
     `
-    feedback.CreatedAt = time.Now()
     
     return r.db.QueryRow(ctx, query, 
         feedback.Header, 
@@ -61,7 +63,9 @@ func (r *Repository) GetFeedbackByID(ctx context.Context, id int64) (*models.Fee
 }
 
 func (r *Repository) UpdateFeedbackAnswer(ctx context.Context, id int64, answer string) error {
-    now := time.Now()
+    // Format current time as ISO string
+    now := time.Now().Format(time.RFC3339)
+    
     query := `
         UPDATE feedback
         SET answer = $1, answered_at = $2
