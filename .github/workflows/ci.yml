@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: "3.9"
       - run: pip install ruff
       - run: ruff check .
 
@@ -68,6 +68,24 @@ jobs:
             ${{ env.SERVER_USER }}@${{ env.SERVER_DOMAIN }} \
             "mkdir -p $DEPLOY_PATH"
 
+      # Генерация SSL сертификатов на сервере
+      - name: Generate SSL certificates on server
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+            ${{ env.SERVER_USER }}@${{ env.SERVER_DOMAIN }} "
+            mkdir -p $DEPLOY_PATH/ssl
+            if [ ! -f $DEPLOY_PATH/ssl/cert.pem ] || [ ! -f $DEPLOY_PATH/ssl/key.pem ]; then
+              openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+                -keyout $DEPLOY_PATH/ssl/key.pem \
+                -out $DEPLOY_PATH/ssl/cert.pem \
+                -subj '/CN=localhost' -extensions EXT -config <( \
+                printf '[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost,IP:$SERVER_DOMAIN\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth')
+              echo 'Generated new SSL certificates'
+            else
+              echo 'SSL certificates already exist'
+            fi
+          "
+        
       # Копирование файлов на сервер
       - name: Deploy to server
         run: |
@@ -92,6 +110,19 @@ jobs:
               exit 1
             fi
             cd $DEPLOY_PATH
+            
+            # Update docker-compose.yml to include SSL volume for nginx
+            if ! grep -q './ssl:/etc/nginx/ssl' docker-compose.yml; then
+              sed -i '/volumes:/a\\      - ./ssl:/etc/nginx/ssl' docker-compose.yml
+              echo 'Added SSL volume to docker-compose.yml'
+            fi
+            
+            # Add 443 port mapping if not already present
+            if ! grep -q '\"443:443\"' docker-compose.yml; then
+              sed -i '/ports:/a\\      - \"443:443\"' docker-compose.yml
+              echo 'Added port 443 mapping to docker-compose.yml'
+            fi
+            
             docker load -i bot.tar || { echo 'Failed to load bot image'; exit 1; }
             docker load -i server.tar || { echo 'Failed to load server image'; exit 1; }
             docker compose --env-file=.env up -d || { echo 'Failed to start containers'; exit 1; }
