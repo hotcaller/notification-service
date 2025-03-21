@@ -24,7 +24,7 @@ async def handle_start_with_invite_code(
     if len(params) == 2:
         id = params[0]
         token = params[1]
-    
+
     id = params
     token = 123
 
@@ -38,7 +38,7 @@ async def start_handler(
 ) -> None:
     user_id = int(message.from_user.id)
     invite_code = command.args
-    await message.answer(f'{invite_code} {command}')
+    await message.answer(f"{invite_code} {command}")
 
     if not await user_exists_by_telegram_id(user_id):
         if invite_code:
