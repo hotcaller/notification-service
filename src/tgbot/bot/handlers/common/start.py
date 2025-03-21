@@ -20,16 +20,16 @@ async def handle_start_with_invite_code(
     message: Message, invite_code: str, dialog_manager: DialogManager
 ) -> None:
     params = invite_code.split("|")
-    token = 123
-    patient_id = params
+
     if len(params) == 2:
-        patient_id, token = params
+        id = params[0]
+        token = params[1]
+    
+    id = params
+    token = 123
 
-    if not await user_exists_by_telegram_id(message.from_user.id):
-        await create_user(message.from_user.id, message.from_user.username)
-
-    await create_subscription(message.from_user.id, token, patient_id)
-    await message.answer("✅ Вы успешно подписались на уведомления.")
+    await create_user(message.from_user.id, message.from_user.username)
+    await create_subscription(message.from_user.id, token, id)
 
 
 @r.message(CommandStart())
@@ -40,16 +40,16 @@ async def start_handler(
     invite_code = command.args
 
     if not await user_exists_by_telegram_id(user_id):
+        if invite_code:
+            await handle_start_with_invite_code(message, invite_code, dialog_manager)
         await create_user(user_id, message.from_user.username)
-
-    if invite_code:
-        await handle_start_with_invite_code(message, invite_code, dialog_manager)
 
     if not await have_user_access_by_telegram_id(user_id):
         await message.answer("*Упс...* Пока что у вас нет доступа к этому боту ⏳")
         return
 
     user = await get_user_by_telegram_id(user_id)
+
     if user["username"] != message.from_user.username:
         await update_username_by_telegram_id(user_id, message.from_user.username)
 
