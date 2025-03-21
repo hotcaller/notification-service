@@ -19,7 +19,7 @@ async def subscription_exists(user_id: int, token: str, patient_id: int) -> bool
 async def create_subscription(user_id: int, token: str, patient_id: int):
     async with async_session() as session:
         new_subscription = Subscriptions(
-            user_id=user_id, token=token, patient_id=patient_id
+            telegram_id=user_id, token=token, patient_id=patient_id
         )
         session.add(new_subscription)
         await session.commit()
