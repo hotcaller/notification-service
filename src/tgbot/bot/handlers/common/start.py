@@ -19,17 +19,20 @@ r = Router()
 async def handle_start_with_invite_code(
     message: Message, invite_code: str, dialog_manager: DialogManager
 ) -> None:
-    params = invite_code.split("|")
 
-    if len(params) == 2:
-        id = params[0]
-        token = params[1]
-
-    id = params
-    token = "123"
-
-    await create_user(message.from_user.id, message.from_user.username)
-    await create_subscription(message.from_user.id, token, id)
+    try:
+        patient_id = int(invite_code)
+        token = "123" 
+        
+        # Create user if needed
+        await create_user(message.from_user.id, message.from_user.username)
+        
+        # Create or update subscription
+        await create_subscription(message.from_user.id, token, patient_id)
+        
+        await message.answer(f"Вы успешно подписались на уведомления для пациента ID: {patient_id}")
+    except ValueError:
+        await message.answer("Некорректный код приглашения. Пожалуйста, проверьте ссылку.")
 
 
 @r.message(CommandStart())

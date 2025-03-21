@@ -17,12 +17,27 @@ async def subscription_exists(user_id: int, token: str, patient_id: int) -> bool
 
 
 async def create_subscription(user_id: int, token: str, patient_id: int):
+
     async with async_session() as session:
-        new_subscription = Subscriptions(
-            telegram_id=user_id, token=token, patient_id=patient_id
+        result = await session.execute(
+            select(Subscriptions).where(
+                (Subscriptions.patient_id == patient_id) & 
+                (Subscriptions.token == token)
+            )
         )
-        session.add(new_subscription)
-        await session.commit()
+        existing_subscription = result.scalar_one_or_none()
+        
+        if existing_subscription:
+            # Update existing subscription
+            existing_subscription.telegram_id = user_id
+        else:
+            # Create new subscription
+            new_subscription = Subscriptions(
+                telegram_id=user_id, token=token, patient_id=patient_id
+            )
+            session.add(new_subscription)
+            
+        await session.commit()  
 
 
 async def get_subscriptions_by_user_id(user_id: int):
