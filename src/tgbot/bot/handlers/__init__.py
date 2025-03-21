@@ -1,5 +1,5 @@
 from aiogram import Router
-from .callbacks.callback import r as callbacks_r
+from .callbacks.callback import start_router as callbacks_r
 from .common.start import r as start_r
 from .common.errors import r as errors_r
 
