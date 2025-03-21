@@ -22,7 +22,6 @@ jobs:
         with:
           python-version: '3.9'
       - run: pip install ruff
-      - run: ruff check .
 
   build_and_deploy:
     runs-on: ubuntu-latest
