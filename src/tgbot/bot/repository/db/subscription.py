@@ -1,8 +1,18 @@
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, distinct
 from bot.repository.db.db import async_session
 from bot.repository.db.models import Subscriptions
 
 
+
+async def get_all_subscribers_by_token(token: str):
+    async with async_session() as session:
+        result = await session.execute(
+            select(distinct(Subscriptions.telegram_id)).where(
+                Subscriptions.token == token
+            )
+        )
+        return result.scalars().all()
+    
 async def subscription_exists(user_id: int, token: str, patient_id: int) -> bool:
     async with async_session() as session:
         result = await session.execute(

@@ -3,6 +3,12 @@ from bot.repository.db.db import async_session
 from bot.repository.db.models import User
 
 
+async def get_all_users():
+    async with async_session() as session:
+        result = await session.execute(select(User.telegram_id))
+        return result.scalars().all()
+    
+
 async def user_exists_by_telegram_id(telegram_id: int) -> bool:
     async with async_session() as session:
         result = await session.execute(

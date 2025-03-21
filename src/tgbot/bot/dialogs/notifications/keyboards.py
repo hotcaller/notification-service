@@ -1,19 +1,17 @@
-import operator
-from aiogram_dialog.widgets.kbd import ScrollingGroup, Select
+from aiogram_dialog.widgets.kbd import ScrollingGroup, Select, Row
 from aiogram_dialog.widgets.text import Format
 
-
-def paginated_bookings(on_click: callable, when: callable) -> ScrollingGroup:
+def paginated_notifications(on_click, when=None):
     return ScrollingGroup(
         Select(
-            Format("📅 {item[id]}"),
-            id="s_scroll_notifications",
-            item_id_getter=operator.itemgetter("id"),
+            Format("{item.header}"),
+            id="s_notifications",
+            item_id_getter=lambda x: x.id,
             items="notifications",
             on_click=on_click,
-            when=when,
         ),
-        id="notifications_id",
+        id="sg_notifications",
         width=1,
-        height=6,
+        height=5,
+        when=when,
     )

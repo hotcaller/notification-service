@@ -1,7 +1,9 @@
-from aiogram.types import Message
 from aiogram.filters import CommandStart, CommandObject
 from aiogram_dialog import DialogManager, StartMode
 from aiogram import Router
+from aiogram.filters import Command
+from aiogram.types import Message
+from bot.dialogs.notifications.states import NotificationMenu
 
 from bot.dialogs.start.states import StartMenu
 from bot.repository.db.user import (
@@ -57,3 +59,8 @@ async def start_handler(
         await update_username_by_telegram_id(user_id, message.from_user.username)
 
     await dialog_manager.start(StartMenu.select_menu, mode=StartMode.RESET_STACK)
+
+
+@r.message(Command("notifications"))
+async def cmd_notifications(message: Message, dialog_manager: DialogManager):
+    await dialog_manager.start(NotificationMenu.notifications_menu, mode=StartMode.RESET_STACK)
