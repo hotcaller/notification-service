@@ -11,6 +11,7 @@ from bot.core.config import TELEGRAM_TOKEN, REDIS_URL
 from bot.repository.redis.redis import init_redis, close_redis
 from bot.repository.db.db import init_db
 from bot.core.kafka.consumer import consume
+from bot.handlers.callbacks.callback import r
 
 async def main() -> None:
     await init_redis()
