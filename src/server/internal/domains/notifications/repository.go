@@ -82,9 +82,11 @@ func (r *Repository) GetNotificationByIDAndUserID(ctx context.Context, notificat
 }
 
 func (r *Repository) SaveNotification(ctx context.Context, notification *models.Notification) error {
-	notification.CreatedAt = time.Now()
+	now := time.Now()
 	
-	createdAtStr := notification.CreatedAt.Format(time.RFC3339)
+	createdAtStr := now.Format(time.RFC3339)
+	
+	notification.CreatedAt = createdAtStr
 	
 	query := `
 			INSERT INTO notifications (header, message, type, target_id, org_token, created_at)
