@@ -21,7 +21,7 @@ func NewRepository(db *postgres.Wrapper) *Repository {
 func (r *Repository) GetAllNotifications(ctx context.Context) ([]models.Notification, error) {
     var notifications []models.Notification
     query := `
-        SELECT id, message, type, target_id, org_token, created_at
+        SELECT id, header, message, type, target_id, org_token, created_at
         FROM notifications
         ORDER BY created_at DESC
     `
@@ -33,7 +33,7 @@ func (r *Repository) GetAllNotifications(ctx context.Context) ([]models.Notifica
 
 func (r *Repository) GetNotificationsByUserID(ctx context.Context, userID int64) ([]models.Notification, error) {
     query := `
-    SELECT n.id, n.message, n.type, n.target_id, n.org_token, n.created_at
+    SELECT n.id, n.header, n.message, n.type, n.target_id, n.org_token, n.created_at
     FROM notifications n
     WHERE n.target_id IN (
         SELECT s.patient_id FROM subscriptions s WHERE s.user_id = $1
@@ -49,7 +49,7 @@ func (r *Repository) GetNotificationsByUserID(ctx context.Context, userID int64)
 
 func (r *Repository) GetNotificationByIDAndUserID(ctx context.Context, id int64, userID int64) (*models.Notification, error) {
     query := `
-    SELECT n.id, n.message, n.type, n.target_id, n.org_token, n.created_at
+    SELECT n.id, n.header, n.message, n.type, n.target_id, n.org_token, n.created_at
     FROM notifications n
     WHERE n.id = $1 AND n.target_id IN (
         SELECT s.patient_id FROM subscriptions s WHERE s.user_id = $2
@@ -65,10 +65,15 @@ func (r *Repository) GetNotificationByIDAndUserID(ctx context.Context, id int64,
 
 func (r *Repository) SaveNotification(ctx context.Context, notification *models.Notification) error {
     query := `
-        INSERT INTO notifications (message, type, target_id, org_token)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO notifications (header, message, type, target_id, org_token)
+        VALUES ($1, $2, $3, $4, $5)
     `
-    _, err := r.db.Exec(ctx, query, notification.Message, notification.Type, notification.TargetID, notification.OrgToken)
+    _, err := r.db.Exec(ctx, query, 
+        notification.Header, 
+        notification.Message, 
+        notification.Type, 
+        notification.TargetID, 
+        notification.OrgToken)
     if err != nil {
         return fmt.Errorf("не удалось сохранить уведомление: %w", err)
     }

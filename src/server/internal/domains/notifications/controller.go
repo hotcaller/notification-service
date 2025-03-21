@@ -17,7 +17,6 @@ func NewController(svc *Service) *Controller {
 }
 
 func (c *Controller) Endpoints(r *gin.Engine) {
-
 	authorized := r.Group("/", middleware.UnifiedAuthenticationMiddleware())
 	authorized.GET("/notifications", c.ListNotifications)
 	authorized.GET("/notifications/:id", c.GetNotificationByID)
@@ -63,7 +62,7 @@ func (c *Controller) GetNotificationByID(ctx *gin.Context) {
 	}
 	idInt, err := strconv.ParseInt(idParam, 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный идентификатор пользователя"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный идентификатор уведомления"})
 		return
 	}
 
@@ -82,25 +81,36 @@ func (c *Controller) GetNotificationByID(ctx *gin.Context) {
 func (c *Controller) SendNotification(ctx *gin.Context) {
 	var notification models.Notification
 	if err := ctx.BindJSON(&notification); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	
+	// Validate required fields
+	if notification.Header == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Header is required"})
+		return
+	}
+	
+	if notification.Message == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Message is required"})
+		return
 	}
 	
 	switch notification.Type {
 	case models.NotificationTypeNews, models.NotificationTypeReminder, 
-			 models.NotificationTypeWarning, models.NotificationTypeImportant:
+		 models.NotificationTypeWarning, models.NotificationTypeImportant:
 	case "":
-			notification.Type = models.NotificationTypeNews
+		notification.Type = models.NotificationTypeNews
 	default:
-			ctx.JSON(http.StatusBadRequest, gin.H{
-					"error": "Invalid notification type. Must be one of: news, reminder, warning, important",
-			})
-			return
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid notification type. Must be one of: news, reminder, warning, important",
+		})
+		return
 	}
 	
 	if err := c.svc.SendNotification(ctx.Request.Context(), notification); err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "Уведомление успешно отправлено"})
 }

@@ -13,6 +13,7 @@ const (
 
 type Notification struct {
     ID        int             `json:"id"`
+    Header    string          `json:"header"`  
     Message   string          `json:"message"`
     Type      NotificationType `json:"type"`
     TargetID  int64           `json:"target_id"`
