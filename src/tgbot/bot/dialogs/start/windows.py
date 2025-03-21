@@ -7,4 +7,6 @@ from bot.dialogs.start import states, callbacks
 def start_window() -> Window:
     return Window(
         Format("Добро пожаловать в ZabMedBot!"),
+
+        state=states.StartMenu.select_menu,
     )
