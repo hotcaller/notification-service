@@ -1,4 +1,3 @@
-from aiogram.types import CallbackQuery
 from aiogram.types import Message
 from aiogram import Router
 from aiogram import F
