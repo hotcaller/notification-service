@@ -1,43 +1,43 @@
 from aiogram.types import CallbackQuery
+from aiogram.types import Message
 from aiogram import Router, types
 from aiogram import F
 from ...repository.db.subscription import get_subscriptions_by_user_id
 import aiohttp
+from bot.repository.db.subscriptions import create_subscription, subscription_exists
+from bot.repository.db.users import user_exists_by_telegram_id, create_user
 
-r = Router()
+router = Router()
+QR_CODE_URL = "http://103.88.241.21:8000/"
 
 
-@r.callback_query(F.data == "check_subscription")
-async def check_subscription(callback: CallbackQuery):
+@router.callback_query(F.data == "check_subscription")
+async def check_subscription(callback: CallbackQuery) -> None:
     pass
 
 
-QR_CODE_URL = "http://103.88.241.21/qr"
+@router.message(F.data == "/start")
+async def start_handler(message: Message):
+    args = message.text.split(" ", 1)
+    telegram_id = message.from_user.id
+    username = message.from_user.username or "Unknown"
 
+    if len(args) > 1:
+        try:
+            patient_id, token = args[1].split("|")
+            patient_id = int(patient_id)
+        except ValueError:
+            await message.answer("Некорректный формат ссылки. Попробуйте еще раз.")
+            return
 
-@r.callback_query(F.data == "get_qr")
-async def get_qr(callback: types.CallbackQuery):
-    user_id = callback.from_user.id
+        if not await user_exists_by_telegram_id(telegram_id):
+            await create_user(telegram_id, username)
 
-    # Получаем подписки пользователя из БД
-    subscriptions = await get_subscriptions_by_user_id(user_id)
+        if not await subscription_exists(telegram_id, token, patient_id):
+            await create_subscription(telegram_id, token, patient_id)
+            await message.answer("✅ Вы успешно подписались на уведомления!")
+        else:
+            await message.answer("ℹ️ Вы уже подписаны на эти уведомления.")
 
-    if not subscriptions:
-        await callback.message.answer("У вас нет активных подписок.")
-        return
-
-    async with aiohttp.ClientSession() as session:
-        for sub in subscriptions:
-            params = {
-                "patient_id": sub["patient_id"],
-                "token": sub["token"],
-            }
-            async with session.get(QR_CODE_URL, params=params) as response:
-                if response.status == 200:
-                    qr_code_data = await response.read()
-                    photo = types.BufferedInputFile(qr_code_data, filename="qrcode.png")
-                    await callback.message.answer_photo(photo, caption="Ваш QR-код")
-                else:
-                    await callback.message.answer("Ошибка при получении QR-кода.")
-
-    await callback.answer()
+    else:
+        await message.answer("Привет! Используйте специальную ссылку для подписки.")

@@ -1,17 +1,20 @@
 import asyncio  # noqa: D100
 import logging
 import sys
+
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.redis import RedisStorage
 from aiogram_dialog import setup_dialogs
+
 from bot.dialogs import get_dialogs
-from bot.handlers import router
+from bot.handlers import router as handlers_router
 from bot.core.config import TELEGRAM_TOKEN, REDIS_URL
 from bot.repository.redis.redis import init_redis, close_redis
 from bot.repository.db.db import init_db
 from bot.core.kafka.consumer import consume
-from bot.handlers.callbacks.callback import r
+from bot.handlers.callbacks.callback import router as callback_router
+from bot.handlers.start import router as start_router
 
 
 async def main() -> None:
@@ -28,8 +31,9 @@ async def main() -> None:
 
     asyncio.create_task(consume(bot))
 
-    dp.include_routers(router, *get_dialogs())
-    dp.include_router(r)
+    dp.include_routers(handlers_router, *get_dialogs())
+    dp.include_router(callback_router)
+    dp.include_router(start_router)
     setup_dialogs(dp)
     await dp.start_polling(bot)
 
