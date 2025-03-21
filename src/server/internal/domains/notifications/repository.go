@@ -32,21 +32,19 @@ func (r *Repository) GetAllNotifications(ctx context.Context) ([]models.Notifica
 }
 
 func (r *Repository) GetNotificationsByUserID(ctx context.Context, userID int64) ([]models.Notification, error) {
-    // Modified query to include both:
-    // 1. Notifications sent directly to patients the user is subscribed to
-    // 2. Broadcast notifications (target_id = 0) for the same org_tokens the user has access to
+    // This query assumes:
+    // 1. Notifications are sent to target_id which is the patient_id
+    // 2. The userID parameter is actually the patient_id 
+    // 3. Broadcast notifications (target_id = 0) for organizations are also included
     query := `
     SELECT n.id, n.header, n.message, n.type, n.target_id, n.org_token, n.created_at
     FROM notifications n
-    WHERE n.target_id IN (
-        SELECT s.patient_id FROM subscriptions s WHERE s.user_id = $1
-    )
+    WHERE n.target_id = $1
     OR (
-        n.target_id = 0 AND n.org_token IN (
-            SELECT DISTINCT p.org_token 
-            FROM subscriptions s
-            JOIN patients p ON s.patient_id = p.id
-            WHERE s.user_id = $1
+        n.target_id = 0 AND n.org_token = (
+            SELECT org_token 
+            FROM patients 
+            WHERE id = $1
         )
     )
     ORDER BY n.created_at DESC
@@ -60,20 +58,16 @@ func (r *Repository) GetNotificationsByUserID(ctx context.Context, userID int64)
 }
 
 func (r *Repository) GetNotificationByIDAndUserID(ctx context.Context, id int64, userID int64) (*models.Notification, error) {
-    // Modified query to include both direct and broadcast notifications
     query := `
     SELECT n.id, n.header, n.message, n.type, n.target_id, n.org_token, n.created_at
     FROM notifications n
     WHERE n.id = $1 AND (
-        n.target_id IN (
-            SELECT s.patient_id FROM subscriptions s WHERE s.user_id = $2
-        )
+        n.target_id = $2
         OR (
-            n.target_id = 0 AND n.org_token IN (
-                SELECT DISTINCT p.org_token 
-                FROM subscriptions s
-                JOIN patients p ON s.patient_id = p.id
-                WHERE s.user_id = $2
+            n.target_id = 0 AND n.org_token = (
+                SELECT org_token 
+                FROM patients 
+                WHERE id = $2
             )
         )
     )
