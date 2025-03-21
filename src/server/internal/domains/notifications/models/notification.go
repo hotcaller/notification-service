@@ -13,10 +13,10 @@ const (
 
 type Notification struct {
     ID        int             `json:"id"`
-    Header    string          `json:"header"`  
+    Header    string          `json:"header"`
     Message   string          `json:"message"`
     Type      NotificationType `json:"type"`
-    TargetID  int64           `json:"target_id"`
+    TargetID  int64           `json:"target_id"` // When 0, this is a broadcast notification
     OrgToken  string          `json:"org_token"`
     CreatedAt time.Time       `json:"created_at"`
 }
