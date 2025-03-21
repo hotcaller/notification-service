@@ -31,50 +31,51 @@ func (r *Repository) GetAllNotifications(ctx context.Context) ([]models.Notifica
     return notifications, nil
 }
 
-func (r *Repository) GetNotificationsByUserID(ctx context.Context, userID int64) ([]models.Notification, error) {
-    // This query assumes:
-    // 1. Notifications are sent to target_id which is the patient_id
-    // 2. The userID parameter is actually the patient_id 
-    // 3. Broadcast notifications (target_id = 0) for organizations are also included
+func (r *Repository) GetNotificationsByUserID(ctx context.Context, patientID int64) ([]models.Notification, error) {
+    // This query gets notifications where:
+    // 1. The target_id matches the patient_id directly
+    // 2. OR it's a broadcast notification (target_id = 0) for the organization
     query := `
     SELECT n.id, n.header, n.message, n.type, n.target_id, n.org_token, n.created_at
     FROM notifications n
     WHERE n.target_id = $1
-    OR (
-        n.target_id = 0 AND n.org_token = (
-            SELECT org_token 
-            FROM patients 
-            WHERE id = $1
-        )
-    )
+    OR (n.target_id = 0 AND n.org_token IN (
+        SELECT s.token::text 
+        FROM subscriptions s 
+        WHERE s.patient_id = $2
+    ))
     ORDER BY n.created_at DESC
     `
     var notifications []models.Notification
 
-    if err := r.db.Select(ctx, &notifications, query, userID); err != nil {
+    // Convert patientID to string for the query
+    patientIDStr := fmt.Sprintf("%d", patientID)
+    
+    if err := r.db.Select(ctx, &notifications, query, patientID, patientIDStr); err != nil {
         return nil, err
     }
     return notifications, nil
 }
 
-func (r *Repository) GetNotificationByIDAndUserID(ctx context.Context, id int64, userID int64) (*models.Notification, error) {
+func (r *Repository) GetNotificationByIDAndUserID(ctx context.Context, notificationID int64, patientID int64) (*models.Notification, error) {
     query := `
     SELECT n.id, n.header, n.message, n.type, n.target_id, n.org_token, n.created_at
     FROM notifications n
     WHERE n.id = $1 AND (
         n.target_id = $2
-        OR (
-            n.target_id = 0 AND n.org_token = (
-                SELECT org_token 
-                FROM patients 
-                WHERE id = $2
-            )
-        )
+        OR (n.target_id = 0 AND n.org_token IN (
+            SELECT s.token::text 
+            FROM subscriptions s 
+            WHERE s.patient_id = $3
+        ))
     )
     `
     var n models.Notification
 
-    if err := r.db.Get(ctx, &n, query, id, userID); err != nil {
+    // Convert patientID to string for the query
+    patientIDStr := fmt.Sprintf("%d", patientID)
+    
+    if err := r.db.Get(ctx, &n, query, notificationID, patientID, patientIDStr); err != nil {
         return nil, err
     }
     return &n, nil
