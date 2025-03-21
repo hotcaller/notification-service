@@ -34,6 +34,7 @@ async def consume(bot: Bot):
             print(notification["target_id"])
             if notification["target_id"] == 0 or notification["target_id"] == "0":
                 subscribers = await get_all_subscribers_by_token(notification["org_token"])
+                print(subscribers)
                 for user_id in subscribers:
                     try:
                         await bot.send_message(
