@@ -27,11 +27,9 @@ async def main() -> None:
    
     asyncio.create_task(consume(bot))
 
-    dp.include_routers(router, *get_dialogs()) 
+    dp.include_routers(router, *get_dialogs())
     dp.include_router(r)
     setup_dialogs(dp)
-
-
     await dp.start_polling(bot)
 
 

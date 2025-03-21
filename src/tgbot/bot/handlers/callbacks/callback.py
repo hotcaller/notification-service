@@ -9,9 +9,7 @@ r = Router()
 
 @r.callback_query(F.data == "check_subscription")
 async def check_subscription(callback: CallbackQuery):
-    user_id = callback.from_user.id
-
-    chat_member = await callback.bot.get_chat_member(chat_id=TELEGRAM_CHANNEL, user_id=user_id)
+    pass
 
 
 QR_CODE_URL = "http://103.88.241.21/qr"
