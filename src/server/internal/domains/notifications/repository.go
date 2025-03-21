@@ -3,7 +3,7 @@ package notifications
 import (
     "context"
     "fmt"
-
+		"time"
     "github.com/Arlandaren/pgxWrappy/pkg/postgres"
     "service/internal/domains/notifications/models"
 )
@@ -82,18 +82,26 @@ func (r *Repository) GetNotificationByIDAndUserID(ctx context.Context, notificat
 }
 
 func (r *Repository) SaveNotification(ctx context.Context, notification *models.Notification) error {
-    query := `
-        INSERT INTO notifications (header, message, type, target_id, org_token)
-        VALUES ($1, $2, $3, $4, $5)
-    `
-    _, err := r.db.Exec(ctx, query, 
-        notification.Header, 
-        notification.Message, 
-        notification.Type, 
-        notification.TargetID, 
-        notification.OrgToken)
-    if err != nil {
-        return fmt.Errorf("не удалось сохранить уведомление: %w", err)
-    }
-    return nil
+	notification.CreatedAt = time.Now()
+	
+	createdAtStr := notification.CreatedAt.Format(time.RFC3339)
+	
+	query := `
+			INSERT INTO notifications (header, message, type, target_id, org_token, created_at)
+			VALUES ($1, $2, $3, $4, $5, $6)
+	`
+	
+	_, err := r.db.Exec(ctx, query, 
+			notification.Header, 
+			notification.Message, 
+			notification.Type, 
+			notification.TargetID, 
+			notification.OrgToken,
+			createdAtStr)
+	
+	if err != nil {
+			return fmt.Errorf("не удалось сохранить уведомление: %w", err)
+	}
+	
+	return nil
 }
