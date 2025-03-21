@@ -20,10 +20,11 @@ async def handle_start_with_invite_code(
     message: Message, invite_code: str, dialog_manager: DialogManager
 ) -> None:
     params = invite_code.split("|")
-    patient_id, token = params
-    if len(params) != 2:
-        token = 123
-        patient_id = params
+    token = 123
+    patient_id = params
+    if len(params) == 2:
+        patient_id, token = params
+        
 
     if not await user_exists_by_telegram_id(message.from_user.id):
         await create_user(message.from_user.id, message.from_user.username)
