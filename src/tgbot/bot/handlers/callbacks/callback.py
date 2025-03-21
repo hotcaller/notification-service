@@ -2,19 +2,14 @@ from aiogram.types import CallbackQuery
 from aiogram.types import Message
 from aiogram import Router
 from aiogram import F
-from bot.repository.db.subscriptions import create_subscription, subscription_exists
-from bot.repository.db.users import user_exists_by_telegram_id, create_user
+from bot.repository.db.subscription import subscription_exists, create_subscription
+from bot.repository.db.user import create_user, user_exists_by_telegram_id
 
-router = Router()
+start_router = Router()
 QR_CODE_URL = "http://103.88.241.21:8000/"
 
 
-@router.callback_query(F.data == "check_subscription")
-async def check_subscription(callback: CallbackQuery) -> None:
-    pass
-
-
-@router.message(F.data == "/start")
+@start_router.message(F.data == "start")
 async def start_handler(message: Message):
     args = message.text.split(" ", 1)
     telegram_id = message.from_user.id

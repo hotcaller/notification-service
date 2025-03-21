@@ -14,8 +14,7 @@ from bot.repository.redis.redis import init_redis, close_redis
 from bot.repository.db.db import init_db
 from bot.core.kafka.consumer import consume
 from bot.handlers.callbacks.callback import router as callback_router
-from bot.handlers.start import router as start_router
-
+from bot.handlers.callbacks.callback import start_router
 
 async def main() -> None:
     await init_redis()
