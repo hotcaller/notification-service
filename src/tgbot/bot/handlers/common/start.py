@@ -26,7 +26,7 @@ async def handle_start_with_invite_code(
         token = params[1]
 
     id = params
-    token = 123
+    token = "123"
 
     await create_user(message.from_user.id, message.from_user.username)
     await create_subscription(message.from_user.id, token, id)
