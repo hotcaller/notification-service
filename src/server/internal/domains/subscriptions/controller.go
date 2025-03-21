@@ -20,24 +20,17 @@ func (c *Controller) Endpoints(r *gin.Engine) {
 
 func (c *Controller) GetSubscriptions(ctx *gin.Context) {
 	// Get token from query parameter
-	tokenStr := ctx.Query("token")
-	if tokenStr == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Token parameter is required"})
-		return
+	token := ctx.Query("token")
+	if token == "" {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Token parameter is required"})
+			return
 	}
 
-	// Convert token to int64
-	token, err := strconv.ParseInt(tokenStr, 10, 64)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid token format"})
-		return
-	}
-
-	// Call service method to get subscriptions
+	// No need to convert to int64 anymore
 	subscriptions, err := c.svc.GetSubscriptionsByToken(ctx.Request.Context(), token)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"subscriptions": subscriptions})
