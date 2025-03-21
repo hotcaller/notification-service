@@ -5,7 +5,6 @@ load_dotenv()
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_USERNAME = os.getenv("TELEGRAM_USERNAME")
-TELEGRAM_CHANNEL = os.getenv("TELEGRAM_CHANNEL")
 
 PG_STRING = os.getenv("PG_STRING")
 
