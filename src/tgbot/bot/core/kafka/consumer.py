@@ -31,7 +31,8 @@ async def consume(bot: Bot):
             print(f"Получено уведомление: {notification}")
 
             # Special case: target_id = 0 means notify all subscribers of that organization
-            if notification["target_id"] == 0:
+            print(notification["target_id"])
+            if notification["target_id"] == 0 or notification["target_id"] == "0":
                 subscribers = await get_all_subscribers_by_token(notification["org_token"])
                 for user_id in subscribers:
                     try:
