@@ -38,6 +38,7 @@ async def start_handler(
 ) -> None:
     user_id = int(message.from_user.id)
     invite_code = command.args
+    await message.answer(f'{invite_code} {command}')
 
     if not await user_exists_by_telegram_id(user_id):
         if invite_code:
