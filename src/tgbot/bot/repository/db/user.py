@@ -28,11 +28,13 @@ async def have_user_access_by_telegram_id(telegram_id: int) -> bool:
 
 
 async def create_user(telegram_id: int, username: str):
+    if await user_exists_by_telegram_id(telegram_id):
+        return
+    
     async with async_session() as session:
         new_user = User(telegram_id=telegram_id, username=username, has_access=True)
         session.add(new_user)
         await session.commit()
-
 
 async def get_user_by_telegram_id(telegram_id: int):
     async with async_session() as session:
