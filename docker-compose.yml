@@ -1,4 +1,11 @@
 services:
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./ssl:/etc/letsencrypt
+      - ./certbot-webroot:/var/www/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot --email zerohero@email.com --agree-tos --no-eff-email -d your-domain.com
+
   server:
     image: server:latest
     build: ./src/server
@@ -31,13 +38,17 @@ services:
     restart: always
     volumes:
       - ./nginx.shield.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl  # Add this volume for SSL certificates
     ports:
-      - "8081:81"
+      - "80:80"     # HTTP port for redirect
+      - "443:443"   # HTTPS port
+      - "8081:81"   # Your existing ports
       - "8082:82"
     networks:
       - app
     labels:
       loki: 'true'
+
 
   redis:
     image: redis:latest
