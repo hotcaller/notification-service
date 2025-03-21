@@ -10,7 +10,7 @@ on:
 
 env:
   DEPLOY_PATH: /home/app
-  SERVER_DOMAIN: 45.153.68.43
+  SERVER_DOMAIN: 103.88.241.21
   SERVER_USER: root
 
 jobs:
