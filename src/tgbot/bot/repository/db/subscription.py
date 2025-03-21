@@ -7,7 +7,7 @@ async def subscription_exists(user_id: int, token: str, patient_id: int) -> bool
     async with async_session() as session:
         result = await session.execute(
             select(Subscriptions).where(
-                (Subscriptions.user_id == user_id)
+                (Subscriptions.telegram_id == user_id)
                 & (Subscriptions.token == token)
                 & (Subscriptions.patient_id == patient_id)
             )
@@ -28,13 +28,13 @@ async def create_subscription(user_id: int, token: str, patient_id: int):
 async def get_subscriptions_by_user_id(user_id: int):
     async with async_session() as session:
         result = await session.execute(
-            select(Subscriptions).where(Subscriptions.user_id == user_id)
+            select(Subscriptions).where(Subscriptions.telegram_id == user_id)
         )
         subscriptions = result.scalars().all()
         return [
             {
                 "id": sub.id,
-                "user_id": sub.user_id,
+                "telegram_id": sub.telegram_id,
                 "token": sub.token,
                 "patient_id": sub.patient_id,
             }
@@ -54,7 +54,7 @@ async def get_subscription_by_patient_id_and_token(patient_id: int, token: str):
         if subscription:
             return {
                 "id": subscription.id,
-                "user_id": subscription.user_id,
+                "telegram_id": subscription.telegram_id,
                 "token": subscription.token,
                 "patient_id": subscription.patient_id,
             }
@@ -70,7 +70,7 @@ async def get_subscription_by_id(subscription_id: int):
         if subscription:
             return {
                 "id": subscription.id,
-                "user_id": subscription.user_id,
+                "telegram_id": subscription.telegram_id,
                 "token": subscription.token,
                 "patient_id": subscription.patient_id,
             }
