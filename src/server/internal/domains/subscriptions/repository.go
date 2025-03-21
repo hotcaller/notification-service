@@ -17,7 +17,7 @@ func NewRepository(db *postgres.Wrapper) *Repository {
 	}
 }
 
-func (r *Repository) GetSubscriptionsByToken(ctx context.Context, token int64) ([]models.Subscription, error) {
+func (r *Repository) GetSubscriptionsByToken(ctx context.Context, token string) ([]models.Subscription, error) {
 	query := `
         SELECT id, telegram_id, token, patient_id
         FROM subscriptions
