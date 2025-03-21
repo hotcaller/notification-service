@@ -34,6 +34,16 @@ async def consume(bot: Bot):
                 notification = message.value
                 print(f"Received notification: {notification}")
 
+                notification_type = notification.get("type", "default")
+                emoji_map = {
+                    "news": "📰",
+                    "reminder": "⏰",
+                    "warning": "⚠️",
+                    "important": "❗",
+                    "default": "ℹ️"  # Default emoji if type not specified
+                }
+                emoji = emoji_map.get(notification_type, emoji_map["default"])
+                formatted_message = f"{emoji} *{notification['header']}*\n\n{notification['message']}"
                 # Special case: target_id = 0 means notify all subscribers of that organization
                 if notification["target_id"] == 0:
                     subscribers = await get_all_subscribers_by_token(notification["org_token"])
@@ -42,7 +52,7 @@ async def consume(bot: Bot):
                     for user_id in subscribers:
                         try:
                             await bot.send_message(
-                                chat_id=user_id, text=notification["message"]
+                                chat_id=user_id, text=formatted_message, parse_mode="Markdown"
                             )
                         except Exception as e:
                             print(f"Failed to send to user {user_id}: {e}")

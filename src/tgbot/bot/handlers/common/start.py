@@ -43,7 +43,6 @@ async def start_handler(
 ) -> None:
     user_id = int(message.from_user.id)
     invite_code = command.args
-    await message.answer(f"{invite_code} {command}")
 
     if not await user_exists_by_telegram_id(user_id):
         if invite_code:
@@ -59,8 +58,3 @@ async def start_handler(
         await update_username_by_telegram_id(user_id, message.from_user.username)
 
     await dialog_manager.start(StartMenu.select_menu, mode=StartMode.RESET_STACK)
-
-
-@r.message(Command("notifications"))
-async def cmd_notifications(message: Message, dialog_manager: DialogManager):
-    await dialog_manager.start(NotificationMenu.notifications_menu, mode=StartMode.RESET_STACK)
