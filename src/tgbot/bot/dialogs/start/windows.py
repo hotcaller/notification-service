@@ -6,7 +6,7 @@ from bot.dialogs.start import states, callbacks
 def start_window() -> Window:
     return Window(
         Format(
-            "NotiHub, aka.kak Po&nHub"
+            "Добро пожаловать в ZabMedBot!"
         ),
 
         Button(Const("📑 Список уведомлений"),"notifications_button",callbacks.on_chosen_notifications,),

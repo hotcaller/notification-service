@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"service/internal/domains/api"
 	"service/internal/domains/notifications"
+	"service/internal/domains/subscriptions"  
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -16,6 +17,7 @@ import (
 type Controller struct {
 	notification *notifications.Controller
 	api          *api.Controller
+	subscription *subscriptions.Controller
 	Router       *gin.Engine
 }
 
@@ -23,6 +25,7 @@ func NewController(svc *Service, r *gin.Engine) *Controller {
 	return &Controller{
 		notification: notifications.NewController(svc.Notification),
 		api:          api.NewController(svc.Api),
+		subscription: subscriptions.NewController(svc.Subscription),  
 		Router:       r,
 	}
 }
@@ -30,7 +33,9 @@ func NewController(svc *Service, r *gin.Engine) *Controller {
 func (c *Controller) InitRouter() {
 	c.api.Endpoints(c.Router)
 	c.notification.Endpoints(c.Router)
+	c.subscription.Endpoints(c.Router) 
 }
+
 
 func (c *Controller) Run(addr string, ctx context.Context) {
 	config := cors.Config{

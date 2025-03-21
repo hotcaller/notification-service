@@ -4,6 +4,7 @@ import (
 	"github.com/Arlandaren/pgxWrappy/pkg/postgres"
 	"service/internal/domains/api"
 	"service/internal/domains/notifications"
+	"service/internal/domains/subscriptions"  
 	"service/internal/infrastructure/storage/minio"
 	"service/internal/infrastructure/storage/redis"
 )
@@ -11,11 +12,13 @@ import (
 type Repository struct {
 	Notification *notifications.Repository
 	Api          *api.Repository
+	Subscription *subscriptions.Repository  
 }
 
 func NewRepository(db *postgres.Wrapper, rdb *redis.RDB, s3 *minio.Minio) *Repository {
 	return &Repository{
 		Notification: notifications.NewRepository(db),
 		Api:          api.NewRepository(db, rdb, s3),
+		Subscription: subscriptions.NewRepository(db), 
 	}
 }
