@@ -19,7 +19,6 @@ r = Router()
 async def handle_start_with_invite_code(
     message: Message, invite_code: str, dialog_manager: DialogManager
 ) -> None:
-    
     params = invite_code
 
     if len(params) != 2:
