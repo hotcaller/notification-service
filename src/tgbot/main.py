@@ -11,6 +11,8 @@ from bot.core.config import TELEGRAM_TOKEN, REDIS_URL
 from bot.repository.redis.redis import init_redis, close_redis
 from bot.repository.db.db import init_db
 from bot.core.kafka.consumer import consume
+from bot.handlers.callbacks.callback import r
+
 async def main() -> None:
     await init_redis()
     await init_db()
@@ -22,13 +24,12 @@ async def main() -> None:
 
     bot = Bot(token=TELEGRAM_TOKEN, default=defaults)
     dp = Dispatcher(storage=storage)
-
+   
     asyncio.create_task(consume(bot))
 
     dp.include_routers(router, *get_dialogs())
+    dp.include_router(r)
     setup_dialogs(dp)
-
-
     await dp.start_polling(bot)
 
 
