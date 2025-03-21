@@ -31,7 +31,7 @@ func (r *Repository) SaveTelegramUser(ctx context.Context, userData string) erro
 }
 
 func (r *Repository) GenerateQRCodeData(ctx context.Context, patientID string, token string) ([]byte, error) {
-	data := fmt.Sprintf("https://t.me/notimedBot?start=%s|%s", patientID, token)
+	data := fmt.Sprintf("https://t.me/ZabMedicialBot?start=%s|%s", patientID, token)
 
 	qrCodeData, err := qrcode.Encode(data, qrcode.Medium, 256)
 	if err != nil {

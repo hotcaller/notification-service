@@ -12,6 +12,5 @@ def start_window() -> Window:
             "notifications_button",
             callbacks.on_chosen_notifications,
         ),
-        Button(Const("📆 Организации"), "orgs_button", callbacks.on_chosen_orgs),
         state=states.StartMenu.select_menu,
     )
