@@ -7,6 +7,7 @@ from bot.repository.db.subscription import get_subscription_by_patient_id_and_to
 
 TOPIC_NAME = "notification_created"
 
+
 async def consume(bot: Bot):
     consumer = AIOKafkaConsumer(
         TOPIC_NAME,
@@ -23,19 +24,16 @@ async def consume(bot: Bot):
             notification = message.value
             print(f"Получено уведомление: {notification}")
 
-            sub = await get_subscription_by_patient_id_and_token(patient_id=notification["target_id"], token=notification["org_token"])
-            print(sub)
-            print(sub)
-            print(sub)
-            print(sub)
-            print(sub)
-            print(sub)
-            print(sub)
+            sub = await get_subscription_by_patient_id_and_token(
+                patient_id=notification["target_id"], token=notification["org_token"]
+            )
             if sub:
-                await bot.send_message(chat_id=sub["telegram_id"], text=notification["message"])
-
+                await bot.send_message(
+                    chat_id=sub["telegram_id"], text=notification["message"]
+                )
 
     except Exception as e:
         print("error: ", e)
     finally:
         await consumer.stop()
+        await bot.session.close()

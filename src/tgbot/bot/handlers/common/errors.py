@@ -25,7 +25,4 @@ async def error_handler(event: ErrorEvent, dialog_manager: DialogManager) -> Non
         elif hasattr(event.update, "inline_query") and event.update.inline_query:
             user_id = event.update.inline_query.from_user.id
 
-
-
     await dialog_manager.event.bot.send_message(chat_id=user_id, text=traceback_text)
-

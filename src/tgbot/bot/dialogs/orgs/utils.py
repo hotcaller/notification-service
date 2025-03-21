@@ -2,7 +2,8 @@ from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog import DialogManager
 from bot.core.config import ADMINS
 
-def is_admin(data:dict, widget:Button, manager: DialogManager) -> bool:
+
+def is_admin(data: dict, widget: Button, manager: DialogManager) -> bool:
     try:
         return True if manager.event.from_user.username in ADMINS else False
     except Exception:

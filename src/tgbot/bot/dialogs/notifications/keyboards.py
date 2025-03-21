@@ -2,6 +2,7 @@ import operator
 from aiogram_dialog.widgets.kbd import ScrollingGroup, Select
 from aiogram_dialog.widgets.text import Format
 
+
 def paginated_bookings(on_click: callable, when: callable) -> ScrollingGroup:
     return ScrollingGroup(
         Select(
@@ -10,7 +11,7 @@ def paginated_bookings(on_click: callable, when: callable) -> ScrollingGroup:
             item_id_getter=operator.itemgetter("id"),
             items="notifications",
             on_click=on_click,
-            when=when
+            when=when,
         ),
         id="notifications_id",
         width=1,
