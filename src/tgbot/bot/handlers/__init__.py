@@ -5,4 +5,4 @@ from .common.errors import r as errors_r
 
 router = Router()
 
-router.include_routers(errors_r,callbacks_r,start_r)
+router.include_routers(errors_r, callbacks_r, start_r)

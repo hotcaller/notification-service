@@ -2,6 +2,7 @@ from sqlalchemy import Column, BigInteger, String, Boolean, ForeignKey
 from bot.repository.db.db import Base
 from sqlalchemy.orm import relationship
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -12,6 +13,7 @@ class User(Base):
 
     subscriptions = relationship("Subscriptions", back_populates="user")
 
+
 class Orgs(Base):
     __tablename__ = "orgs"
 
@@ -20,6 +22,7 @@ class Orgs(Base):
     token = Column(String, nullable=False, unique=True)
 
     subscriptions = relationship("Subscriptions", back_populates="org")
+
 
 class Subscriptions(Base):
     __tablename__ = "subscriptions"

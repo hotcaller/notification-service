@@ -1,5 +1,4 @@
 from aiogram.types import CallbackQuery
-from bot.core.config import TELEGRAM_CHANNEL
 from aiogram import Router, types
 from aiogram import F
 from ...repository.db.subscription import get_subscriptions_by_user_id
@@ -7,12 +6,14 @@ import aiohttp
 
 r = Router()
 
+
 @r.callback_query(F.data == "check_subscription")
 async def check_subscription(callback: CallbackQuery):
     pass
 
 
 QR_CODE_URL = "http://103.88.241.21/qr"
+
 
 @r.callback_query(F.data == "get_qr")
 async def get_qr(callback: types.CallbackQuery):
