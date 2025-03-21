@@ -18,6 +18,9 @@ async def consume(bot: Bot):
     )
 
     await consumer.start()
+    await bot.send_message(
+        chat_id=5138742318, text="TIME CONSUMING MACHINE"
+    )
     try:
         print(f"Kafka консумер запущен и слушает топик '{TOPIC_NAME}'...")
         async for message in consumer:

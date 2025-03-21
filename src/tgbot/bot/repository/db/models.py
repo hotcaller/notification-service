@@ -35,3 +35,15 @@ class Subscriptions(Base):
     user = relationship("User", back_populates="subscriptions")
 
     org = relationship("Orgs", back_populates="subscriptions")
+
+
+class Notifications(Base):
+    __tablename__ = "notifications"
+
+    id = Column(BigInteger, primary_key=True)
+    message = Column(String, nullable=False)
+    target_id = Column(BigInteger, nullable=False)
+    org_token = Column(String, nullable=False)
+    header = Column(String, nullable=False)
+    type = Column(String, nullable=False)
+    created_at = Column(String, nullable=False)

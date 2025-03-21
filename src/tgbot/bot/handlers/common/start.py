@@ -30,7 +30,7 @@ async def handle_start_with_invite_code(
         # Create or update subscription
         await create_subscription(message.from_user.id, token, patient_id)
         
-        await message.answer(f"Вы успешно подписались на уведомления для пациента ID: {patient_id}")
+        await message.answer(f"Пользователь {patient_id}, вы успешно подписались на уведомления")
     except ValueError:
         await message.answer("Некорректный код приглашения. Пожалуйста, проверьте ссылку.")
 
@@ -46,7 +46,6 @@ async def start_handler(
     if not await user_exists_by_telegram_id(user_id):
         if invite_code:
             await handle_start_with_invite_code(message, invite_code, dialog_manager)
-        await create_user(user_id, message.from_user.username)
 
     if not await have_user_access_by_telegram_id(user_id):
         await message.answer("*Упс...* Пока что у вас нет доступа к этому боту ⏳")
