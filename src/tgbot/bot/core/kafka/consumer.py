@@ -27,13 +27,6 @@ async def consume(bot: Bot):
             sub = await get_subscription_by_patient_id_and_token(
                 patient_id=notification["target_id"], token=notification["org_token"]
             )
-            print(sub)
-            print(sub)
-            print(sub)
-            print(sub)
-            print(sub)
-            print(sub)
-            print(sub)
             if sub:
                 await bot.send_message(
                     chat_id=sub["telegram_id"], text=notification["message"]
@@ -43,3 +36,4 @@ async def consume(bot: Bot):
         print("error: ", e)
     finally:
         await consumer.stop()
+        await bot.session.close()

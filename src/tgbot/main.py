@@ -15,6 +15,7 @@ from bot.repository.db.db import init_db
 from bot.core.kafka.consumer import consume
 from bot.handlers.callbacks.callback import start_router
 
+
 async def main() -> None:
     await init_redis()
     await init_db()
