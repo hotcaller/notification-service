@@ -10,7 +10,12 @@ async def check_subscription(callback: CallbackQuery):
 
     chat_member = await callback.bot.get_chat_member(chat_id=TELEGRAM_CHANNEL, user_id=user_id)
 
-    if chat_member.status in ["member", "administrator", "creator"]:
-        await callback.message.answer("Спасибо за подписку! ❤️\nИспользуйте промокод `telegram` и получите скидку 5% на бронирование.")
-    else:
-        await callback.message.answer("Вы ещё не подписались на канал. Пожалуйста, подпишитесь и нажмите кнопку ещё раз.")
+    # if chat_member.status in ["member", "administrator", "creator"]:
+    #     await callback.message.answer("Спасибо за подписку! ❤️\nИспользуйте промокод `telegram` и получите скидку 5% на бронирование.")
+    # else:
+    #     await callback.message.answer("Вы ещё не подписались на канал. Пожалуйста, подпишитесь и нажмите кнопку ещё раз.")
+
+
+@r.callback_query(F.data == "get_qr")
+async def get_qr(callback: CallbackQuery):
+    callback.answer('test');
