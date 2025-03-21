@@ -13,6 +13,6 @@ func NewService(repo *Repository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) GetSubscriptionsByToken(ctx context.Context, token int64) ([]models.Subscription, error) {
+func (s *Service) GetSubscriptionsByToken(ctx context.Context, token string) ([]models.Subscription, error) {
 	return s.repo.GetSubscriptionsByToken(ctx, token)
 }

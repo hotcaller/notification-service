@@ -3,7 +3,6 @@ package subscriptions
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
 type Controller struct {
